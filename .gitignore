@@ -1,0 +1,15 @@
+*.iml
+.gradle/
+.idea/
+.kotlin/
+local.properties
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+.DS_Store
+
+# Tile builds: OSM extracts and generated maps are large and reproducible.
+tools/tiles/data/
+*.pmtiles
+*.osm.pbf

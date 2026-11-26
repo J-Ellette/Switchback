@@ -1,0 +1,36 @@
+name: Build map region
+
+# Run from the Actions tab: pick a Geofabrik area (for example oklahoma, utah, colorado)
+# and download the resulting .pmtiles file from the run's artifacts.
+on:
+  workflow_dispatch:
+    inputs:
+      area:
+        description: Geofabrik extract name
+        required: true
+        default: oklahoma
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build ${{ inputs.area }}.pmtiles
+        env:
+          AREA: ${{ inputs.area }}
+        run: |
+          case "$AREA" in
+            *[!a-z0-9_-]*|"") echo "Area must be a Geofabrik name like oklahoma"; exit 1 ;;
+          esac
+          ./gradlew -p tools/tiles run --args="--area=$AREA --download"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.area }}-pmtiles
+          path: tools/tiles/data/*.pmtiles
+          retention-days: 30

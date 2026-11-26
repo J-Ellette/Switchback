@@ -1,0 +1,158 @@
+{
+  "version": 8,
+  "name": "Switchback Trail",
+  "glyphs": "asset://fonts/{fontstack}/{range}.pbf",
+  "sources": {
+    "switchback": {
+      "type": "vector",
+      "url": "pmtiles://file://{TILES_PATH}",
+      "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap contributors</a>"
+    }
+  },
+  "layers": [
+    { "id": "background", "type": "background", "paint": { "background-color": "#F3F0E6" } },
+    {
+      "id": "landcover", "type": "fill", "source": "switchback", "source-layer": "landcover",
+      "paint": {
+        "fill-color": ["match", ["get", "class"],
+          "wood", "#CFE0C0",
+          "scrub", "#DDE5C8",
+          "grass", "#E4EBCF",
+          "rock", "#E2DDD5",
+          "sand", "#EFE6CC",
+          "wetland", "#D6E6E0",
+          "#E8E8DC"]
+      }
+    },
+    {
+      "id": "park-fill", "type": "fill", "source": "switchback", "source-layer": "park",
+      "paint": { "fill-color": "#7FA06A", "fill-opacity": ["match", ["get", "class"], "park", 0.12, 0.08] }
+    },
+    {
+      "id": "water", "type": "fill", "source": "switchback", "source-layer": "water",
+      "paint": { "fill-color": "#A9CBE0" }
+    },
+    {
+      "id": "waterway", "type": "line", "source": "switchback", "source-layer": "waterway",
+      "paint": {
+        "line-color": "#86B3D1",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 8, ["match", ["get", "class"], "river", 1, 0.3], 15, ["match", ["get", "class"], "river", 4, 1.5]]
+      }
+    },
+    {
+      "id": "park-outline", "type": "line", "source": "switchback", "source-layer": "park",
+      "filter": ["!=", ["get", "class"], "park"],
+      "paint": { "line-color": "#4F7A3F", "line-width": 1.5, "line-dasharray": [4, 2], "line-opacity": 0.7 }
+    },
+    {
+      "id": "roads-track", "type": "line", "source": "switchback", "source-layer": "roads",
+      "filter": ["==", ["get", "class"], "track"],
+      "paint": { "line-color": "#9C7A4E", "line-width": ["interpolate", ["linear"], ["zoom"], 12, 0.8, 16, 2], "line-dasharray": [3, 1.5] }
+    },
+    {
+      "id": "roads-casing", "type": "line", "source": "switchback", "source-layer": "roads",
+      "filter": ["!=", ["get", "class"], "track"],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#B8B0A0",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 6, ["match", ["get", "class"], "major", 1.5, 0.5], 16, ["match", ["get", "class"], "major", 9, "medium", 7, 5]]
+      }
+    },
+    {
+      "id": "roads", "type": "line", "source": "switchback", "source-layer": "roads",
+      "filter": ["!=", ["get", "class"], "track"],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": ["match", ["get", "class"], "major", "#F2C46D", "medium", "#FBE3AA", "#FFFFFF"],
+        "line-width": ["interpolate", ["linear"], ["zoom"], 6, ["match", ["get", "class"], "major", 1, 0.3], 16, ["match", ["get", "class"], "major", 7, "medium", 5, 3.5]]
+      }
+    },
+    {
+      "id": "routes-halo", "type": "line", "source": "switchback", "source-layer": "routes",
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": { "line-color": "#E0663A", "line-opacity": 0.35, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 2, 16, 9] }
+    },
+    {
+      "id": "paths", "type": "line", "source": "switchback", "source-layer": "paths",
+      "paint": {
+        "line-color": ["match", ["get", "sac_scale"],
+          ["demanding_mountain_hiking", "alpine_hiking", "demanding_alpine_hiking", "difficult_alpine_hiking"], "#7A1F1F",
+          "mountain_hiking", "#B8462B",
+          "#5B4632"],
+        "line-width": ["interpolate", ["linear"], ["zoom"], 12, 1, 16, 2.5],
+        "line-dasharray": ["match", ["get", "trail_visibility"], ["bad", "horrible", "no"], ["literal", [1, 3]], ["literal", [3, 1.5]]]
+      }
+    },
+    {
+      "id": "path-labels", "type": "symbol", "source": "switchback", "source-layer": "paths", "minzoom": 14,
+      "layout": {
+        "symbol-placement": "line",
+        "text-field": ["get", "name"],
+        "text-font": ["Noto Sans Italic"],
+        "text-size": 11,
+        "text-offset": [0, 0.8]
+      },
+      "paint": { "text-color": "#5B4632", "text-halo-color": "#F3F0E6", "text-halo-width": 1.5 }
+    },
+    {
+      "id": "route-labels", "type": "symbol", "source": "switchback", "source-layer": "routes", "minzoom": 11,
+      "layout": {
+        "symbol-placement": "line",
+        "symbol-spacing": 400,
+        "text-field": ["coalesce", ["get", "name"], ["get", "ref"]],
+        "text-font": ["Noto Sans Medium"],
+        "text-size": 12
+      },
+      "paint": { "text-color": "#B04A24", "text-halo-color": "#FFFFFF", "text-halo-width": 2 }
+    },
+    {
+      "id": "pois-dot", "type": "circle", "source": "switchback", "source-layer": "pois",
+      "paint": {
+        "circle-radius": ["match", ["get", "class"], "peak", 4, 3.5],
+        "circle-color": ["match", ["get", "class"],
+          "peak", "#4A3B2A",
+          ["spring", "water", "waterfall"], "#2F7FB8",
+          ["hut", "shelter", "campsite"], "#2E7D4F",
+          "trailhead", "#E0663A",
+          "#7D7468"],
+        "circle-stroke-color": "#FFFFFF",
+        "circle-stroke-width": 1.2
+      }
+    },
+    {
+      "id": "pois-label", "type": "symbol", "source": "switchback", "source-layer": "pois",
+      "layout": {
+        "text-field": ["case",
+          ["all", ["==", ["get", "class"], "peak"], ["has", "ele"]],
+          ["format", ["coalesce", ["get", "name"], ""], {}, "\n", {}, ["concat", ["get", "ele"], " m"], { "font-scale": 0.85 }],
+          ["coalesce", ["get", "name"], ""]],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": 11,
+        "text-anchor": "top",
+        "text-offset": [0, 0.6],
+        "text-optional": true
+      },
+      "paint": { "text-color": "#3D352B", "text-halo-color": "#F3F0E6", "text-halo-width": 1.5 }
+    },
+    {
+      "id": "park-labels", "type": "symbol", "source": "switchback", "source-layer": "park",
+      "filter": ["!=", ["get", "class"], "park"],
+      "layout": {
+        "text-field": ["get", "name"],
+        "text-font": ["Noto Sans Medium"],
+        "text-size": 13,
+        "symbol-placement": "point"
+      },
+      "paint": { "text-color": "#3F6331", "text-halo-color": "#F3F0E6", "text-halo-width": 1.5 }
+    },
+    {
+      "id": "places", "type": "symbol", "source": "switchback", "source-layer": "places",
+      "layout": {
+        "text-field": ["get", "name"],
+        "text-font": ["Noto Sans Medium"],
+        "text-size": ["match", ["get", "class"], "city", 16, "town", 14, 12]
+      },
+      "paint": { "text-color": "#2B2620", "text-halo-color": "#FFFFFF", "text-halo-width": 2 }
+    }
+  ]
+}
